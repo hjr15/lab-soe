@@ -51,3 +51,16 @@ EOF
     [ "$status" -eq 0 ]
     [[ "$output" == *"would install"* ]] || [[ "$output" == *"install"* ]]
 }
+
+@test "15-node.sh treats a broken node binary as needing install" {
+    cat >"$FAKEBIN/node" <<'EOF'
+#!/usr/bin/env bash
+exit 7
+EOF
+    chmod +x "$FAKEBIN/node"
+    fake_bin "$FAKEBIN" npm 0
+    fake_bin "$FAKEBIN" npx 0
+    LAB_SOE_DRY_RUN=1 PATH="$FAKEBIN:/usr/bin:/bin" run "$SCRIPT"
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"would install"* ]]
+}

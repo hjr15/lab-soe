@@ -10,8 +10,9 @@ NODE_MIN_VERSION="20.0.0"
 DRY_RUN="${LAB_SOE_DRY_RUN:-0}"
 
 current_node_version() {
-    if have_cmd node; then
-        node --version 2>/dev/null | sed 's/^v//'
+    local v
+    if have_cmd node && v=$(node --version 2>/dev/null); then
+        printf '%s\n' "${v#v}"
     else
         echo ""
     fi
@@ -24,6 +25,7 @@ install_node_20() {
     fi
     log_info "installing Node 20 LTS via NodeSource"
     curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+    sudo apt-get update
     sudo apt-get install -y nodejs
 }
 
@@ -45,5 +47,5 @@ if [ "$DRY_RUN" != "1" ]; then
     have_cmd node || { log_error "node not on PATH after install"; exit 1; }
     have_cmd npm  || { log_error "npm not on PATH after install"; exit 1; }
     have_cmd npx  || { log_error "npx not on PATH after install"; exit 1; }
-    log_info "node $(node --version): installed"
+    log_info "node $(node --version 2>/dev/null || echo '?'): installed"
 fi
