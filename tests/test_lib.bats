@@ -103,6 +103,21 @@ EOF
     [ "$status" -ne 0 ]
 }
 
+@test "require_ubuntu does not leak os-release variables into the caller" {
+    cat >"$TMP/os-release" <<'EOF'
+NAME="Ubuntu"
+VERSION_ID="24.04"
+ID=ubuntu
+PRETTY_NAME="Ubuntu 24.04 LTS"
+EOF
+    LAB_SOE_OS_RELEASE="$TMP/os-release"
+    source "$LIB"
+    unset NAME PRETTY_NAME
+    require_ubuntu
+    [ -z "${NAME:-}" ]
+    [ -z "${PRETTY_NAME:-}" ]
+}
+
 @test "load_secrets sources variables from given file" {
     cat >"$TMP/secrets.env" <<'EOF'
 TEST_VAR=hello

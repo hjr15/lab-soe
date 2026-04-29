@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Shared helpers for lab-soe installer scripts.
-# Source from each script with: source "$(dirname "$0")/lib.sh"
+# Source from each script with: source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 
 # --- Logging ----------------------------------------------------------------
 
@@ -15,8 +15,10 @@ have_cmd() {
 }
 
 # version_at_least <current> <minimum>
-# Exit 0 if current >= minimum (semver), 1 otherwise.
-# Uses dpkg's version comparator (always present on Ubuntu).
+# Exit 0 if current >= minimum, 1 otherwise. Uses dpkg's comparator.
+# CALLER MUST: strip any leading "v" (dpkg warns on non-digit-leading versions),
+# and not pass semver pre-release strings (dpkg treats "1.0.0-rc1" >= "1.0.0",
+# the opposite of semver). Strip pre-release tags upstream of this call.
 version_at_least() {
     dpkg --compare-versions "$1" ge "$2"
 }
@@ -31,10 +33,14 @@ require_ubuntu() {
         log_error "cannot read $os_release"
         return 1
     fi
-    # shellcheck disable=SC1090
-    . "$os_release"
-    if [ "${ID:-}" != "ubuntu" ] || [ "${VERSION_ID:-}" != "24.04" ]; then
-        log_error "lab-soe targets Ubuntu 24.04; detected ID=${ID:-?} VERSION_ID=${VERSION_ID:-?}"
+    local id version_id
+    # Parse in a subshell so os-release vars don't leak into the caller.
+    read -r id version_id < <(
+        # shellcheck disable=SC1090
+        . "$os_release" && printf '%s %s\n' "${ID:-?}" "${VERSION_ID:-?}"
+    )
+    if [ "$id" != "ubuntu" ] || [ "$version_id" != "24.04" ]; then
+        log_error "lab-soe targets Ubuntu 24.04; detected ID=${id} VERSION_ID=${version_id}"
         return 1
     fi
     return 0
