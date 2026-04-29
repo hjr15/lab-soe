@@ -73,7 +73,8 @@ NAME="Ubuntu"
 VERSION_ID="24.04"
 ID=ubuntu
 EOF
-    LAB_SOE_OS_RELEASE="$TMP/os-release" source "$LIB"
+    LAB_SOE_OS_RELEASE="$TMP/os-release"
+    source "$LIB"
     run require_ubuntu
     [ "$status" -eq 0 ]
 }
@@ -84,7 +85,8 @@ NAME="Fedora Linux"
 VERSION_ID="40"
 ID=fedora
 EOF
-    LAB_SOE_OS_RELEASE="$TMP/os-release" source "$LIB"
+    LAB_SOE_OS_RELEASE="$TMP/os-release"
+    source "$LIB"
     run require_ubuntu
     [ "$status" -ne 0 ]
 }
@@ -95,7 +97,8 @@ NAME="Ubuntu"
 VERSION_ID="22.04"
 ID=ubuntu
 EOF
-    LAB_SOE_OS_RELEASE="$TMP/os-release" source "$LIB"
+    LAB_SOE_OS_RELEASE="$TMP/os-release"
+    source "$LIB"
     run require_ubuntu
     [ "$status" -ne 0 ]
 }
@@ -104,13 +107,15 @@ EOF
     cat >"$TMP/secrets.env" <<'EOF'
 TEST_VAR=hello
 EOF
-    LAB_SOE_SECRETS_FILE="$TMP/secrets.env" source "$LIB"
+    LAB_SOE_SECRETS_FILE="$TMP/secrets.env"
+    source "$LIB"
     load_secrets
     [ "$TEST_VAR" = "hello" ]
 }
 
 @test "load_secrets logs a warning and continues when file is missing" {
-    LAB_SOE_SECRETS_FILE="$TMP/does-not-exist" source "$LIB"
+    LAB_SOE_SECRETS_FILE="$TMP/does-not-exist"
+    source "$LIB"
     err=$(load_secrets 2>&1 1>/dev/null)
     [[ "$err" == *"[warn]"* ]]
 }

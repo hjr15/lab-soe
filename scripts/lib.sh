@@ -23,13 +23,10 @@ version_at_least() {
 
 # --- Platform gate ----------------------------------------------------------
 
-# Capture override at source time so tests can set it via inline env before sourcing.
-_LAB_SOE_OS_RELEASE="${LAB_SOE_OS_RELEASE:-/etc/os-release}"
-
 # Aborts unless running on Ubuntu 24.04.
 # Override the os-release path with LAB_SOE_OS_RELEASE for tests.
 require_ubuntu() {
-    local os_release="$_LAB_SOE_OS_RELEASE"
+    local os_release="${LAB_SOE_OS_RELEASE:-/etc/os-release}"
     if [ ! -r "$os_release" ]; then
         log_error "cannot read $os_release"
         return 1
@@ -45,14 +42,11 @@ require_ubuntu() {
 
 # --- Secrets ----------------------------------------------------------------
 
-# Capture override at source time so tests can set it via inline env before sourcing.
-_LAB_SOE_SECRETS_FILE="${LAB_SOE_SECRETS_FILE:-${HOME}/.config/lab-soe/secrets.env}"
-
 # Sources $LAB_SOE_SECRETS_FILE (default ~/.config/lab-soe/secrets.env).
 # Logs a warning and returns 0 if the file is missing — installers that need
 # a specific variable check for it themselves and skip cleanly.
 load_secrets() {
-    local secrets="$_LAB_SOE_SECRETS_FILE"
+    local secrets="${LAB_SOE_SECRETS_FILE:-${HOME}/.config/lab-soe/secrets.env}"
     if [ -r "$secrets" ]; then
         # shellcheck disable=SC1090
         . "$secrets"
