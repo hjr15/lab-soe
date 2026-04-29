@@ -30,3 +30,15 @@ EOF
 shellcheck_script() {
     shellcheck -x "$1"
 }
+
+# Symlink a baseline of system utilities into $1 so a script can run with
+# PATH limited to that directory. Pass extra utility names as additional args.
+# Usage: isolate_path "$FAKEBIN" awk sed
+isolate_path() {
+    local dir="$1"; shift
+    mkdir -p "$dir"
+    local cmd
+    for cmd in bash dirname id tr grep printf "$@"; do
+        ln -sf "$(command -v "$cmd")" "$dir/$cmd"
+    done
+}

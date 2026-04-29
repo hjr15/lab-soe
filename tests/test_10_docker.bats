@@ -26,9 +26,7 @@ teardown() {
 }
 
 @test "10-docker.sh fails when docker is missing from PATH" {
-    for cmd in bash dirname id tr grep printf; do
-        ln -sf "$(command -v "$cmd")" "$FAKEBIN/$cmd"
-    done
+    isolate_path "$FAKEBIN"
     PATH="$FAKEBIN" run "$SCRIPT"
     [ "$status" -ne 0 ]
     [[ "$output" == *"docker"* ]]
