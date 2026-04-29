@@ -1,0 +1,14 @@
+# Secrets — never commit
+secrets.env
+*.env
+!secrets.env.example
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+*.swp
+*~
+
+# Logs
+*.log
