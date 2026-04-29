@@ -53,15 +53,18 @@ lab-soe/
 
 ## Pre-flight
 
-- [ ] **Step 0: Install developer dependencies (one-time on this machine)**
+The repo vendors its own test tooling — no sudo, no apt. `tests/setup.sh` clones `bats-core` and downloads a static `shellcheck` binary into `tests/.tools/` (gitignored). `tests/run.sh` puts both on PATH and invokes bats. These tools exist only to test lab-soe itself; they are **not** part of what `bootstrap.sh` installs (that boundary is documented in CLAUDE.md, Task 10).
+
+- [ ] **Step 0: Run the tooling setup once, then verify**
 
 ```bash
-sudo apt update && sudo apt install -y bats shellcheck
-bats --version    # expect: Bats 1.x
-shellcheck --version | head -1
+./tests/setup.sh
+./tests/run.sh --version    # expect: Bats 1.11.x
 ```
 
-These tools are needed to run the test suite while building the SOE. They are **not** installed by the SOE itself — that boundary is documented in CLAUDE.md (Task 10).
+Re-running `./tests/setup.sh` is a no-op when the tools are already in place.
+
+**Throughout the rest of the plan: `./tests/run.sh tests/...` is used wherever you would normally run `bats tests/...`.** That wrapper is what guarantees the vendored shellcheck is on PATH inside test files.
 
 ---
 
@@ -89,7 +92,7 @@ Create `tests/smoke.bats`:
 - [ ] **Step 2: Run the smoke test, verify it passes**
 
 ```bash
-bats tests/smoke.bats
+./tests/run.sh tests/smoke.bats
 ```
 
 Expected output:
@@ -286,7 +289,7 @@ EOF
 - [ ] **Step 2: Run the tests, verify they fail**
 
 ```bash
-bats tests/test_lib.bats
+./tests/run.sh tests/test_lib.bats
 ```
 
 Expected: every test fails (lib.sh does not exist yet, or shellcheck fails on a missing file).
@@ -358,7 +361,7 @@ load_secrets() {
 - [ ] **Step 4: Run the tests, verify they pass**
 
 ```bash
-bats tests/test_lib.bats
+./tests/run.sh tests/test_lib.bats
 ```
 
 Expected: all 13 tests pass.
@@ -366,7 +369,7 @@ Expected: all 13 tests pass.
 - [ ] **Step 5: Run shellcheck explicitly**
 
 ```bash
-shellcheck -x scripts/lib.sh
+./tests/.tools/shellcheck -x scripts/lib.sh
 ```
 
 Expected: no output, exit 0.
@@ -434,7 +437,7 @@ teardown() {
 - [ ] **Step 2: Run the tests, verify they fail**
 
 ```bash
-bats tests/test_10_docker.bats
+./tests/run.sh tests/test_10_docker.bats
 ```
 
 Expected: all 4 tests fail (script does not exist).
@@ -479,7 +482,7 @@ chmod +x scripts/10-docker.sh
 - [ ] **Step 5: Run the tests, verify they pass**
 
 ```bash
-bats tests/test_10_docker.bats
+./tests/run.sh tests/test_10_docker.bats
 ```
 
 Expected: all 4 tests pass.
@@ -562,7 +565,7 @@ EOF
 - [ ] **Step 2: Run the tests, verify they fail**
 
 ```bash
-bats tests/test_15_node.bats
+./tests/run.sh tests/test_15_node.bats
 ```
 
 Expected: all 3 tests fail (script does not exist).
@@ -632,7 +635,7 @@ chmod +x scripts/15-node.sh
 - [ ] **Step 5: Run the tests, verify they pass**
 
 ```bash
-bats tests/test_15_node.bats
+./tests/run.sh tests/test_15_node.bats
 ```
 
 Expected: all 3 tests pass.
@@ -701,7 +704,7 @@ teardown() {
 - [ ] **Step 2: Run the tests, verify they fail**
 
 ```bash
-bats tests/test_20_k8s_tools.bats
+./tests/run.sh tests/test_20_k8s_tools.bats
 ```
 
 Expected: all 3 tests fail.
@@ -828,7 +831,7 @@ chmod +x scripts/20-k8s-tools.sh
 - [ ] **Step 5: Run the tests, verify they pass**
 
 ```bash
-bats tests/test_20_k8s_tools.bats
+./tests/run.sh tests/test_20_k8s_tools.bats
 ```
 
 Expected: all 3 tests pass.
@@ -953,7 +956,7 @@ EOF
 - [ ] **Step 2: Run the tests, verify they fail**
 
 ```bash
-bats tests/test_30_claude.bats
+./tests/run.sh tests/test_30_claude.bats
 ```
 
 Expected: all 3 tests fail.
@@ -1074,7 +1077,7 @@ chmod +x scripts/30-claude.sh
 - [ ] **Step 5: Run the tests, verify they pass**
 
 ```bash
-bats tests/test_30_claude.bats
+./tests/run.sh tests/test_30_claude.bats
 ```
 
 Expected: all 3 tests pass.
@@ -1088,33 +1091,9 @@ git commit -m "feat: add 30-claude.sh Claude Code, plugins, and MCP installer"
 
 ---
 
-## Task 7: Update `.gitignore` for test artifacts
+## Task 7: ~~Update `.gitignore` for test artifacts~~ (completed during Pre-flight)
 
-**Files:**
-- Modify: `.gitignore`
-
-- [ ] **Step 1: Add bats run cache to `.gitignore`**
-
-Append to `.gitignore`:
-
-```
-# bats run cache
-.bats-cache/
-tests/.bats-cache/
-```
-
-- [ ] **Step 2: Verify**
-
-```bash
-cat .gitignore | tail -5
-```
-
-- [ ] **Step 3: Commit**
-
-```bash
-git add .gitignore
-git commit -m "chore: ignore bats run cache"
-```
+The Pre-flight tooling vendoring already added `tests/.tools/`, `.bats-cache/`, and `tests/.bats-cache/` to `.gitignore`. Skip this task.
 
 ---
 
@@ -1219,7 +1198,7 @@ EOF
 - [ ] **Step 2: Run the tests, verify they fail**
 
 ```bash
-bats tests/test_bootstrap.bats
+./tests/run.sh tests/test_bootstrap.bats
 ```
 
 Expected: all 4 tests fail.
@@ -1275,7 +1254,7 @@ chmod +x bootstrap.sh
 - [ ] **Step 5: Run the tests, verify they pass**
 
 ```bash
-bats tests/test_bootstrap.bats
+./tests/run.sh tests/test_bootstrap.bats
 ```
 
 Expected: all 4 tests pass.
@@ -1283,7 +1262,7 @@ Expected: all 4 tests pass.
 - [ ] **Step 6: Run the full bats suite to make sure nothing regressed**
 
 ```bash
-bats tests/
+./tests/run.sh tests/
 ```
 
 Expected: every test in every file passes.
@@ -1359,8 +1338,8 @@ Switch contexts: `kubectx`. Switch namespaces: `kubens`.
 
 ## Contributing
 
-- Run tests: `bats tests/`
-- Lint: `shellcheck -x scripts/*.sh bootstrap.sh`
+- Run tests: `./tests/run.sh tests/`
+- Lint: covered automatically by the test suite (each script's bats file runs shellcheck via `shellcheck_script`).
 - Add a new dependency: drop a new `scripts/NN-<topic>.sh`. Out of scope: anything that runs inside a cluster.
 ```
 
@@ -1411,8 +1390,8 @@ Keep it short. ~20 lines. These are rules for any Claude (or human) working in t
 
 ## Tests
 
-- Run all tests: `bats tests/`
-- Lint: `shellcheck -x scripts/*.sh bootstrap.sh`
+- Run all tests: `./tests/run.sh tests/`
+- Lint: covered automatically by the test suite (each script's bats file runs shellcheck via `shellcheck_script`).
 - Every new installer script must come with a `tests/test_NN_<topic>.bats` covering at minimum: shellcheck passes, and the skip path is taken when the tool is already present.
 
 ## Design references
