@@ -89,3 +89,33 @@ EOF
     [[ "$output" == *"GITHUB_PAT"* ]]
     [[ "$output" == *"skip"* ]] || [[ "$output" == *"warn"* ]]
 }
+
+@test "30-claude.sh registers github MCP with Bearer prefix and jq-built JSON when PAT is set" {
+    fake_bin "$FAKEBIN" node 0
+    fake_bin "$FAKEBIN" npm 0
+    fake_bin "$FAKEBIN" npx 0
+    # claude that reports github not configured but records `mcp add-json` args.
+    cat >"$FAKEBIN/claude" <<EOF
+#!/usr/bin/env bash
+case "\$1 \$2" in
+    "plugin marketplace") [ "\$3" = "list" ] && echo "anthropics/claude-plugins-official"; exit 0 ;;
+    "plugin list") echo "superpowers"; echo "code-review"; echo "frontend-design"; exit 0 ;;
+    "mcp list") echo "context7"; echo "playwright"; exit 0 ;;
+    "mcp get") [ "\$3" = "github" ] && exit 1; exit 0 ;;
+    "mcp add-json")
+        # \$3 = "github", \$4 = the JSON payload
+        echo "GITHUB_MCP_PAYLOAD=\$4"
+        exit 0
+        ;;
+esac
+exit 0
+EOF
+    chmod +x "$FAKEBIN/claude"
+    # Need real jq for the script to build the payload.
+    ln -sf "$(command -v jq)" "$FAKEBIN/jq"
+    export GITHUB_PAT="ghp_TESTtokenABC123"
+    PATH="$FAKEBIN:/usr/bin:/bin" run "$SCRIPT"
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"Bearer ghp_TESTtokenABC123"* ]]
+    [[ "$output" == *"api.githubcopilot.com"* ]]
+}

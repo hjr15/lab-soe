@@ -77,9 +77,16 @@ ensure_mcp_github() {
     fi
     log_info "registering mcp github"
     [ "$DRY_RUN" = "1" ] && return 0
-    claude mcp add-json github \
-        '{"type":"http","url":"https://api.githubcopilot.com/mcp","headers":{"Authorization":"'"$GITHUB_PAT"'"}}' \
-        --scope user
+    if ! have_cmd jq; then
+        log_error "jq not found; 20-k8s-tools.sh must run first"
+        return 1
+    fi
+    local payload
+    payload=$(jq -nc \
+        --arg pat "$GITHUB_PAT" \
+        '{type:"http", url:"https://api.githubcopilot.com/mcp",
+          headers:{Authorization:("Bearer " + $pat)}}')
+    claude mcp add-json github "$payload" --scope user
 }
 
 # --- Orchestration ----------------------------------------------------------
