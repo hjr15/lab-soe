@@ -17,7 +17,6 @@ require_ubuntu
 load_secrets
 
 shopt -s nullglob
-LC_ALL=C
 INSTALLERS=( "${SCRIPTS_DIR}"/[0-9][0-9]-*.sh )
 
 if [ "${#INSTALLERS[@]}" -eq 0 ]; then
