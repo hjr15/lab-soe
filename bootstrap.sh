@@ -17,7 +17,8 @@ require_ubuntu
 load_secrets
 
 shopt -s nullglob
-mapfile -t INSTALLERS < <(printf '%s\n' "${SCRIPTS_DIR}"/[0-9][0-9]-*.sh | sort)
+LC_ALL=C
+INSTALLERS=( "${SCRIPTS_DIR}"/[0-9][0-9]-*.sh )
 
 if [ "${#INSTALLERS[@]}" -eq 0 ]; then
     log_warn "no installer scripts found in ${SCRIPTS_DIR}"
@@ -26,9 +27,11 @@ fi
 
 for script in "${INSTALLERS[@]}"; do
     log_info "==> running $(basename "$script")"
-    if ! "$script"; then
-        log_error "failed: $(basename "$script") (exit $?)"
-        exit 1
+    rc=0
+    "$script" || rc=$?
+    if [ "$rc" -ne 0 ]; then
+        log_error "failed: $(basename "$script") (exit $rc)"
+        exit "$rc"
     fi
 done
 

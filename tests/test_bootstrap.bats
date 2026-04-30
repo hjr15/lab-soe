@@ -83,3 +83,17 @@ EOF
         run bash "$TMP/bootstrap.sh"
     [ "$status" -ne 0 ]
 }
+
+@test "bootstrap.sh propagates the installer's exit code in status and message" {
+    cat >"$TMP/scripts/10-fails-with-7.sh" <<'EOF'
+#!/usr/bin/env bash
+exit 7
+EOF
+    chmod +x "$TMP/scripts/10-fails-with-7.sh"
+    LAB_SOE_OS_RELEASE="$TMP/os-release" \
+    LAB_SOE_SECRETS_FILE="$TMP/no-such-file" \
+        run bash "$TMP/bootstrap.sh"
+    [ "$status" -eq 7 ]
+    [[ "$output" == *"exit 7"* ]]
+    [[ "$output" == *"10-fails-with-7.sh"* ]]
+}
