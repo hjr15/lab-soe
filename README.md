@@ -20,12 +20,14 @@ cd ~/Documents/Code/lab-soe
 mkdir -p ~/.config/lab-soe
 cp secrets.env.example ~/.config/lab-soe/secrets.env
 chmod 600 ~/.config/lab-soe/secrets.env
-$EDITOR ~/.config/lab-soe/secrets.env   # set GITHUB_PAT
+# GITHUB_PAT is optional. If unset the github MCP is skipped; you can add
+# it later and re-run ./bootstrap.sh.
+$EDITOR ~/.config/lab-soe/secrets.env
 
-./bootstrap.sh
+./bootstrap.sh 2>&1 | tee /tmp/lab-soe-bootstrap.log
 ```
 
-Re-run `./bootstrap.sh` any time to pick up new tools.
+You'll be prompted for `sudo` once for the apt installs. Re-run `./bootstrap.sh` any time to pick up new tools — already-installed steps log `ok, skipping`.
 
 ## What it installs
 
