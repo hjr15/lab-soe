@@ -67,7 +67,10 @@ install_kubectl() {
     sudo apt-get install -y kubectl
 }
 
-# --- helm (Helm apt repo) ---------------------------------------------------
+# --- helm (official get-helm-3 install script) ------------------------------
+# Helm's old apt CDN at baltocdn.com is defunct (NXDOMAIN as of 2025).
+# Upstream now recommends the get-helm-3 script, which fetches the binary
+# from GitHub releases — same pattern we use for k3d.
 
 install_helm() {
     if have_cmd helm; then
@@ -75,20 +78,11 @@ install_helm() {
         return 0
     fi
     if [ "$DRY_RUN" = "1" ]; then
-        log_info "would install helm via Helm apt repo"
+        log_info "would install helm via get-helm-3 script"
         return 0
     fi
-    log_info "installing helm via Helm apt repo"
-    if [ ! -f /etc/apt/keyrings/helm.gpg ]; then
-        curl -fsSL https://baltocdn.com/helm/signing.asc \
-            | sudo gpg --dearmor -o /etc/apt/keyrings/helm.gpg
-    fi
-    if [ ! -f /etc/apt/sources.list.d/helm-stable-debian.list ]; then
-        echo 'deb [arch=amd64 signed-by=/etc/apt/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main' \
-            | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list >/dev/null
-    fi
-    sudo apt-get update
-    sudo apt-get install -y helm
+    log_info "installing helm via get-helm-3 script"
+    curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 }
 
 # --- k3d (official install script) ------------------------------------------
