@@ -12,3 +12,10 @@ secrets.env
 
 # Logs
 *.log
+
+# Vendored test tooling (bats-core clone + shellcheck binary)
+tests/.tools/
+
+# bats run cache
+.bats-cache/
+tests/.bats-cache/

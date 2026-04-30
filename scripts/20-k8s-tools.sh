@@ -1,0 +1,109 @@
+#!/usr/bin/env bash
+# 20-k8s-tools.sh — install local k8s dev tools: k3d, kubectl, helm, kubectx,
+# kubens, jq. Each tool is independently presence-checked and skipped if found.
+
+set -euo pipefail
+
+# shellcheck source=scripts/lib.sh
+source "$(dirname "$0")/lib.sh"
+
+DRY_RUN="${LAB_SOE_DRY_RUN:-0}"
+
+# --- jq ---------------------------------------------------------------------
+
+install_jq() {
+    if have_cmd jq; then
+        log_info "jq: ok, skipping"
+        return 0
+    fi
+    if [ "$DRY_RUN" = "1" ]; then
+        log_info "would install jq via apt"
+        return 0
+    fi
+    log_info "installing jq via apt"
+    sudo apt-get install -y jq
+}
+
+# --- kubectx (provides both kubectx and kubens) -----------------------------
+
+install_kubectx() {
+    if have_cmd kubectx && have_cmd kubens; then
+        log_info "kubectx: ok, skipping"
+        log_info "kubens: ok, skipping"
+        return 0
+    fi
+    if [ "$DRY_RUN" = "1" ]; then
+        log_info "would install kubectx (provides kubens) via apt"
+        return 0
+    fi
+    log_info "installing kubectx (provides kubens) via apt"
+    sudo apt-get install -y kubectx
+}
+
+# --- kubectl (Kubernetes apt repo) ------------------------------------------
+
+install_kubectl() {
+    if have_cmd kubectl; then
+        log_info "kubectl: ok, skipping"
+        return 0
+    fi
+    if [ "$DRY_RUN" = "1" ]; then
+        log_info "would install kubectl via Kubernetes apt repo"
+        return 0
+    fi
+    log_info "installing kubectl via Kubernetes apt repo"
+    sudo apt-get update
+    sudo apt-get install -y apt-transport-https ca-certificates curl gnupg
+    sudo mkdir -p -m 755 /etc/apt/keyrings
+    if [ ! -f /etc/apt/keyrings/kubernetes-apt-keyring.gpg ]; then
+        curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.30/deb/Release.key \
+            | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+    fi
+    if [ ! -f /etc/apt/sources.list.d/kubernetes.list ]; then
+        echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.30/deb/ /' \
+            | sudo tee /etc/apt/sources.list.d/kubernetes.list >/dev/null
+    fi
+    sudo apt-get update
+    sudo apt-get install -y kubectl
+}
+
+# --- helm (official get-helm-3 install script) ------------------------------
+# Helm's old apt CDN at baltocdn.com is defunct (NXDOMAIN as of 2025).
+# Upstream now recommends the get-helm-3 script, which fetches the binary
+# from GitHub releases — same pattern we use for k3d.
+
+install_helm() {
+    if have_cmd helm; then
+        log_info "helm: ok, skipping"
+        return 0
+    fi
+    if [ "$DRY_RUN" = "1" ]; then
+        log_info "would install helm via get-helm-3 script"
+        return 0
+    fi
+    log_info "installing helm via get-helm-3 script"
+    curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+}
+
+# --- k3d (official install script) ------------------------------------------
+
+install_k3d() {
+    if have_cmd k3d; then
+        log_info "k3d: ok, skipping"
+        return 0
+    fi
+    if [ "$DRY_RUN" = "1" ]; then
+        log_info "would install k3d via get.k3d.io"
+        return 0
+    fi
+    log_info "installing k3d via get.k3d.io"
+    curl -fsSL https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
+}
+
+install_jq
+install_kubectx
+install_kubectl
+install_helm
+install_k3d
+
+log_info "k8s tools: done"
