@@ -6,13 +6,6 @@ repo_root() {
     cd "${BATS_TEST_DIRNAME}/.." && pwd
 }
 
-# Create an isolated PATH containing only the directories listed.
-# Usage: with_path /tmp/fakebin /usr/bin
-with_path() {
-    PATH="$(IFS=:; echo "$*")"
-    export PATH
-}
-
 # Make a fake executable in $1 with given name and exit code (default 0).
 # Usage: fake_bin /tmp/fakebin docker 0
 fake_bin() {
