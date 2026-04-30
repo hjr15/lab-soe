@@ -19,8 +19,11 @@ install_claude_code() {
         log_info "claude: ok, skipping"
         return 0
     fi
-    log_info "would install claude code via npm"
-    if [ "$DRY_RUN" = "1" ]; then return 0; fi
+    if [ "$DRY_RUN" = "1" ]; then
+        log_info "would install claude code via npm"
+        return 0
+    fi
+    log_info "installing claude code via npm"
     if ! have_cmd npm; then
         log_error "npm not found; 15-node.sh must run first"
         return 1
@@ -35,8 +38,11 @@ ensure_marketplace() {
         log_info "marketplace ${PLUGIN_MARKETPLACE}: ok, skipping"
         return 0
     fi
+    if [ "$DRY_RUN" = "1" ]; then
+        log_info "would add plugin marketplace ${PLUGIN_MARKETPLACE}"
+        return 0
+    fi
     log_info "adding plugin marketplace ${PLUGIN_MARKETPLACE}"
-    [ "$DRY_RUN" = "1" ] && return 0
     claude plugin marketplace add "$PLUGIN_MARKETPLACE"
 }
 
@@ -48,8 +54,11 @@ ensure_plugin() {
         log_info "plugin ${name}: ok, skipping"
         return 0
     fi
+    if [ "$DRY_RUN" = "1" ]; then
+        log_info "would install plugin ${name}"
+        return 0
+    fi
     log_info "installing plugin ${name}"
-    [ "$DRY_RUN" = "1" ] && return 0
     claude plugin install "$name"
 }
 
@@ -61,9 +70,12 @@ ensure_mcp_simple() {
         log_info "mcp ${name}: ok, skipping"
         return 0
     fi
+    if [ "$DRY_RUN" = "1" ]; then
+        log_info "would register mcp ${name}"
+        return 0
+    fi
     log_info "registering mcp ${name}"
-    [ "$DRY_RUN" = "1" ] && return 0
-    claude mcp add "$name" "$@"
+    claude mcp add "$name" --scope user "$@"
 }
 
 ensure_mcp_github() {
@@ -75,8 +87,11 @@ ensure_mcp_github() {
         log_warn "GITHUB_PAT not set; skipping github MCP — set it in ~/.config/lab-soe/secrets.env and re-run"
         return 0
     fi
+    if [ "$DRY_RUN" = "1" ]; then
+        log_info "would register mcp github"
+        return 0
+    fi
     log_info "registering mcp github"
-    [ "$DRY_RUN" = "1" ] && return 0
     if ! have_cmd jq; then
         log_error "jq not found; 20-k8s-tools.sh must run first"
         return 1

@@ -65,6 +65,13 @@ EOF
     [ "$status" -eq 0 ]
     [[ "$output" == *"superpowers"* ]]
     [[ "$output" == *"context7"* ]]
+    # Skip path must not announce any installs/registrations.
+    [[ "$output" != *"would install"* ]]
+    [[ "$output" != *"would register"* ]]
+    [[ "$output" != *"would add"* ]]
+    [[ "$output" != *"installing plugin"* ]]
+    [[ "$output" != *"registering mcp"* ]]
+    [[ "$output" != *"adding plugin marketplace"* ]]
 }
 
 @test "30-claude.sh logs-and-skips github MCP when GITHUB_PAT is unset" {
@@ -118,4 +125,7 @@ EOF
     [ "$status" -eq 0 ]
     [[ "$output" == *"Bearer ghp_TESTtokenABC123"* ]]
     [[ "$output" == *"api.githubcopilot.com"* ]]
+    # Real-install path must use the active-tense verb, not "would register".
+    [[ "$output" == *"registering mcp github"* ]]
+    [[ "$output" != *"would register mcp github"* ]]
 }

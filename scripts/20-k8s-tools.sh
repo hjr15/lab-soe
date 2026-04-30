@@ -9,14 +9,6 @@ source "$(dirname "$0")/lib.sh"
 
 DRY_RUN="${LAB_SOE_DRY_RUN:-0}"
 
-run_or_say() {
-    if [ "$DRY_RUN" = "1" ]; then
-        log_info "would run: $*"
-    else
-        "$@"
-    fi
-}
-
 # --- jq ---------------------------------------------------------------------
 
 install_jq() {
@@ -24,8 +16,12 @@ install_jq() {
         log_info "jq: ok, skipping"
         return 0
     fi
-    log_info "would install jq via apt"
-    run_or_say sudo apt-get install -y jq
+    if [ "$DRY_RUN" = "1" ]; then
+        log_info "would install jq via apt"
+        return 0
+    fi
+    log_info "installing jq via apt"
+    sudo apt-get install -y jq
 }
 
 # --- kubectx (provides both kubectx and kubens) -----------------------------
@@ -36,8 +32,12 @@ install_kubectx() {
         log_info "kubens: ok, skipping"
         return 0
     fi
-    log_info "would install kubectx (provides kubens) via apt"
-    run_or_say sudo apt-get install -y kubectx
+    if [ "$DRY_RUN" = "1" ]; then
+        log_info "would install kubectx (provides kubens) via apt"
+        return 0
+    fi
+    log_info "installing kubectx (provides kubens) via apt"
+    sudo apt-get install -y kubectx
 }
 
 # --- kubectl (Kubernetes apt repo) ------------------------------------------
@@ -47,8 +47,11 @@ install_kubectl() {
         log_info "kubectl: ok, skipping"
         return 0
     fi
-    log_info "would install kubectl via Kubernetes apt repo"
-    if [ "$DRY_RUN" = "1" ]; then return 0; fi
+    if [ "$DRY_RUN" = "1" ]; then
+        log_info "would install kubectl via Kubernetes apt repo"
+        return 0
+    fi
+    log_info "installing kubectl via Kubernetes apt repo"
     sudo apt-get update
     sudo apt-get install -y apt-transport-https ca-certificates curl gnupg
     sudo mkdir -p -m 755 /etc/apt/keyrings
@@ -71,8 +74,11 @@ install_helm() {
         log_info "helm: ok, skipping"
         return 0
     fi
-    log_info "would install helm via Helm apt repo"
-    if [ "$DRY_RUN" = "1" ]; then return 0; fi
+    if [ "$DRY_RUN" = "1" ]; then
+        log_info "would install helm via Helm apt repo"
+        return 0
+    fi
+    log_info "installing helm via Helm apt repo"
     if [ ! -f /etc/apt/keyrings/helm.gpg ]; then
         curl -fsSL https://baltocdn.com/helm/signing.asc \
             | sudo gpg --dearmor -o /etc/apt/keyrings/helm.gpg
@@ -92,8 +98,11 @@ install_k3d() {
         log_info "k3d: ok, skipping"
         return 0
     fi
-    log_info "would install k3d via get.k3d.io"
-    if [ "$DRY_RUN" = "1" ]; then return 0; fi
+    if [ "$DRY_RUN" = "1" ]; then
+        log_info "would install k3d via get.k3d.io"
+        return 0
+    fi
+    log_info "installing k3d via get.k3d.io"
     curl -fsSL https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
 }
 
