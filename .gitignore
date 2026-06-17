@@ -1,0 +1,21 @@
+# Secrets — never commit
+secrets.env
+*.env
+!secrets.env.example
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+*.swp
+*~
+
+# Logs
+*.log
+
+# Vendored test tooling (bats-core clone + shellcheck binary)
+tests/.tools/
+
+# bats run cache
+.bats-cache/
+tests/.bats-cache/
