@@ -1,0 +1,32 @@
+# lab-soe tool manifest — single source of truth for the host tooling
+# ./bootstrap.sh provisions on Ubuntu 24.04.
+#
+# Consumed as the upstream prerequisite by service-platform-template
+# (https://github.com/hjr15/service-platform-template), whose
+# tests/contract.sh pulls this file from raw.githubusercontent.com and
+# validates that the tools it needs are provided here at compatible
+# versions. See INF-347.
+#
+# Fields:
+#   name    — the command as it lands on PATH
+#   version — exact pin, or "latest" when the installer tracks upstream
+#             latest at run time (k3d/helm/kubectl/etc. float by design)
+#   role    — core     : k8s dev essentials lab-soe guarantees
+#             optional : convenience / product-specific extras
+#             ci       : test-only
+tools:
+  - { name: docker,    version: latest,  role: core }       # verified only; must pre-exist
+  - { name: k3d,       version: latest,  role: core }       # get.k3d.io install script
+  - { name: kubectl,   version: latest,  role: core }       # Kubernetes v1.30 apt channel
+  - { name: helm,      version: latest,  role: core }       # get-helm-3 script
+  - { name: jq,        version: latest,  role: core }       # apt
+  - { name: argocd,    version: v3.3.8,  role: optional }   # LAB_SOE_ARGOCD_VERSION
+  - { name: kubectx,   version: latest,  role: optional }   # apt (provides kubens)
+  - { name: kubens,    version: latest,  role: optional }   # shipped by kubectx
+  - { name: k9s,       version: latest,  role: optional }   # GitHub releases (latest)
+  - { name: tilt,      version: latest,  role: optional }   # get.tilt.dev
+  - { name: yq,        version: 4.44.3,  role: optional }   # scripts/32-yq.sh
+  - { name: gh,        version: latest,  role: optional }   # GitHub CLI apt
+  - { name: terraform, version: latest,  role: optional }   # HashiCorp apt
+  - { name: aws,       version: latest,  role: optional }   # AWS CLI v2 bundled installer
+  - { name: node,      version: "20",    role: optional }   # NodeSource 20 LTS (min)

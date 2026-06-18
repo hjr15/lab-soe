@@ -47,6 +47,12 @@ helm install myapp ./chart
 
 Switch contexts: `kubectx`. Switch namespaces: `kubens`.
 
+One product that uses `lab-soe` as its recommended host prerequisite is **[service-platform-template](https://github.com/hjr15/service-platform-template)** — a fork-and-run ArgoCD + cert-manager GitOps lab. It validates its required tools against this repo's [`tools.yaml`](tools.yaml) (see its `tests/contract.sh`), so the dependency between the two stays honest as both evolve.
+
+## Tool manifest
+
+[`tools.yaml`](tools.yaml) is the machine-readable list of what `bootstrap.sh` installs (`name` + `version` + `role`). It's the single source of truth downstream consumers diff against — keep it in sync when you add or repin a tool.
+
 ## Contributing
 
 - Run tests: `./tests/run.sh tests/`
