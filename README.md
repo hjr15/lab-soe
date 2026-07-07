@@ -27,6 +27,7 @@ None of the bundled installers require a secret. If you add a custom `scripts/NN
 
 - **Docker** — verified only (must already be installed)
 - **Node.js 20 LTS** + npm + npx (NodeSource apt)
+- **Python venv capability** — `python3-venv` (ensurepip) + `python3-pip`, so any product can build its own virtualenv (products own their venv + requirements; lab-soe only guarantees the host *can*)
 - **k3d**, **kubectl**, **helm**, **kubectx** (provides `kubens`), **jq**
 - **k9s** (terminal UI for Kubernetes — GitHub releases)
 - **Tilt** (live-reload local k8s dev — get.tilt.dev installer)
