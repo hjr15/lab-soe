@@ -30,3 +30,4 @@ tools:
   - { name: terraform, version: latest,  role: optional }   # HashiCorp apt
   - { name: aws,       version: latest,  role: optional }   # AWS CLI v2 bundled installer
   - { name: node,      version: "20",    role: optional }   # NodeSource 20 LTS (min)
+  - { name: python3,   version: latest,  role: optional }   # scripts/17-python.sh — venv (ensurepip) + pip capability
